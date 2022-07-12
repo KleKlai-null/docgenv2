@@ -3,8 +3,9 @@
 use App\Http\Controllers\UserManagement;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WithdrawalSlipController;
-use App\Http\Controllers\VerifyDocuments;
+use App\Http\Controllers\VerifyController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ReturnSlipController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,13 @@ Route::group(['middleware'  => 'auth'], function () {
      */
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log');
 
+    /**
+     * @return slip
+     */
+
+    Route::resource('/return-slip', ReturnSlipController::class);
+    // Route::get('return-slip/history', [ReturnSlipController::class, 'index'])->name('return-slip.history-log');
+
     Route::get('/history-log', [WithdrawalSlipController::class, 'index'])->name('history-log');
     Route::get('/search-slip', [WithdrawalSlipController::class, 'index'])->name('slip.search');
     Route::get('/create-slip', [WithdrawalSlipController::class, 'create'])->name('slip.create');
@@ -43,6 +51,6 @@ Route::group(['middleware'  => 'auth'], function () {
 });
 
 // Public Access
-Route::get('/verify/{key?}', [VerifyDocuments::class, 'Verify_documents']);
+Route::get('/verify/{key?}', [VerifyController::class, 'Verify_documents']);
 
 require __DIR__.'/auth.php';

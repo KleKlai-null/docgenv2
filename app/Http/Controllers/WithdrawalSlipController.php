@@ -10,9 +10,11 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\WithdrawalSlipRequest;
+use Illuminate\Support\Facades\DB;
 
 class WithdrawalSlipController extends Controller
 {
+    private $storeData;
 
     /**
      * Display a listing of the resource.
@@ -65,50 +67,54 @@ class WithdrawalSlipController extends Controller
      */
     public function store(WithdrawalSlipRequest $request)
     {
-        
-        $data = $withdrawalSlip = WithdrawalSlip::create([
-            'user_id'                   => auth()->user()->id,
-            'customer_name'             => $request->customer_name,
-            'document_series_no'        => $request->document_series_no,
-            'customer_date'             => $request->customer_date,
-            'pallet_no'                 => $request->pallet_no,
-            'wh_location'               => $request->wh_location,
-            'warehouse'                 => $request->warehouse,
-            'profit_center'             => $request->profit_center,
-            'sub_profit_center'         => $request->sub_profit_center,
-            'prepared_by'               => $request->prepared_by,
-            'approved_by'               => $request->approved_by,
-            'released_by'               => $request->released_by,
-        ]);
+
+        DB::transaction(function () use ($request){
+
+            $this->storeData = WithdrawalSlip::create([
+                'user_id'                   => auth()->user()->id,
+                'customer_name'             => $request->customer_name,
+                'document_series_no'        => $request->document_series_no,
+                'customer_date'             => $request->customer_date,
+                'pallet_no'                 => $request->pallet_no,
+                'wh_location'               => $request->wh_location,
+                'warehouse'                 => $request->warehouse,
+                'profit_center'             => $request->profit_center,
+                'sub_profit_center'         => $request->sub_profit_center,
+                'prepared_by'               => $request->prepared_by,
+                'approved_by'               => $request->approved_by,
+                'released_by'               => $request->released_by,
+            ]);
+
+            foreach($request->items as $key => $item) {
+                Item::create([
+                    'withdrawal_slip_id'    => $this->storeData->id,
+                    'item_code'             => $item['item_code'],
+                    'item_description'      => $item['item_description'],
+                    'qty'                   => $item['qty'],
+                    'uom'                   => $item['uom'],
+                    'remarks'               => $item['remarks']
+                ]);
+            }
+
+        }, 1);
 
         $image = QrCode::format('png')
             ->size(200)->errorCorrection('H')
-            ->generate(config('app.url').'/verify/'.$data->id);
+            ->generate(config('app.url').'/verify/'.$this->storeData->id);
 
-        $output_file = '/img/qr/qr-' . $data->document_series_no . '.png';
+        $output_file = '/img/qr/qr-' . $this->storeData->document_series_no . '.png';
 
         Storage::disk('public')->put($output_file, $image); //storage/app/public/img/qr-code/qr-1557309130.png
 
-        foreach($request->items as $key => $item) {
-            Item::create([
-                'withdrawal_slip_id'    => $withdrawalSlip->id,
-                'item_code'             => $item['item_code'],
-                'item_description'      => $item['item_description'],
-                'qty'                   => $item['qty'],
-                'uom'                   => $item['uom'],
-                'remarks'               => $item['remarks']
-            ]);
-        }
+        $withdrawalSlip = $this->storeData;
 
         // Generate PDF File
         $customPaper = array(0,0,567.00,283.80);
         $pdf = PDF::loadView('slip.pdf', compact('withdrawalSlip'))->setPaper($customPaper, 'portrait');
         $content = $pdf->download()->getOriginalContent();
-        Storage::disk('local')->put('withdrawalslip/bak/'.$data->document_series_no.'.pdf',$content) ;
+        Storage::disk('local')->put('returnslip/bak/'.$this->storeData->document_series_no.'.pdf',$content) ;
 
-        // return redirect()->route('slip.view', $data);
         return redirect('history-log');
-
     }
 
     /**

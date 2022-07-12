@@ -13,13 +13,26 @@
                 <!-- Create Withdrawal Slip Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('slip.create')" :active="request()->routeIs('slip.create')">
-                        {{ __('Create Withdrawal Slip') }}
+                        {{ __('Withdrawal Slip') }}
                     </x-nav-link>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('history-log')" :active="request()->routeIs('history-log')">
+                        {{ __('History Log') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('return-slip.create')" :active="request()->routeIs('return-slip.create')">
+                        {{ __('Return Slip') }}
+                    </x-nav-link>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('return-slip.index')" :active="request()->routeIs('return-slip.index')">
                         {{ __('History Log') }}
                     </x-nav-link>
                 </div>

@@ -23,7 +23,7 @@
                 <x-label :value="__('Document Date')" />
                 
                 <div class="mb-4 text-sm text-gray-500">
-                    {{ $withdrawal_slip->customer_date->format('d M Y') }}
+                    {{ $withdrawal_slip->created_at->format('d M Y') }}
                 </div>
                 <x-label :value="__('Document Series Number')" />
                 

@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-
+        <meta name="description" content="Established in 2008 Gensan Feedmill Inc., is one of the largest feed manufacturer in the Philippines. We provide Feed Production Services to our partners through Tolling Arrangements">
         <title>{{ config('app.name', 'Gensan Feedmill Inc.') }}</title>
 
         <!-- Fonts -->
